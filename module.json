@@ -5,6 +5,11 @@
   "esmodules": [
     "scripts/main.js"
   ],
+  "authors": [
+    {
+      "name": "Tthief"
+    }
+  ],
   "url": "https://github.com/Sant1FG/tthiefs-timer",
   "download": "https://github.com/Sant1FG/tthiefs-timer/archive/refs/tags/1.2.zip",
   "manifest": "https://github.com/Sant1FG/tthiefs-timer/releases/latest/download/module.json",
