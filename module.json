@@ -1,10 +1,13 @@
 {
   "id": "tthiefs-timer",
   "title": "tthiefs-timer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "esmodules": [
     "scripts/main.js"
   ],
+  "url": "https://github.com/Sant1FG/tthiefs-timer",
+  "download": "https://github.com/Sant1FG/tthiefs-timer/archive/refs/tags/1.2.zip",
+  "manifest": "https://github.com/Sant1FG/tthiefs-timer/releases/latest/download/module.json",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
