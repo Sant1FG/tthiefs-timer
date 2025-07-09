@@ -1,6 +1,8 @@
 var combatStart;
 var combatEnd;
 
+
+
 Hooks.on("combatStart", (combat, updates) => {
     combatStart = new Date();
     var hour = combatStart.getHours();
@@ -8,17 +10,40 @@ Hooks.on("combatStart", (combat, updates) => {
 
     let content = `<div class="timer-msg">The combat has started at ${hour}:${min} </div>`;
 
-    const speaker = ChatMessage._getSpeakerFromUser({ user: game.user });
-
     let messageData = {
         user: game.user.id,
-        speaker: speaker,
         type: CONST.CHAT_MESSAGE_STYLES.OOC,
         content: content
         }
         if(game.user.isGM){
     ChatMessage.create(messageData);
         }
+});
+
+Hooks.on("updateCombatant", async function (combatant, data, options) {
+    let token = combatant.token;
+    if (game.combats.active && token.combatant.isDefeated && token.actor?.type !== 'character') {
+        Sequencer.EffectManager.endEffects({ object: token });
+        token.update({ alpha: 0.3 });
+    }
+
+    if (game.combats.active && token.combatant.isDefeated && token.combatant.defeated == false && token.actor?.type !== 'character') {
+        token.update({ alpha: 1.0 });
+    }
+
+
+});
+
+Hooks.on("deleteCombat", async function (combat) {
+    if (!game.combats.active) {
+        canvas.tokens.placeables.forEach(token => {
+            let each = token.document;
+            if(each.alpha < 1 ){
+                each.update({ alpha: 1.0 });
+            }
+            
+        });
+    }
 });
 
 
@@ -30,11 +55,8 @@ Hooks.on("deleteCombat", (combat, updates) => {
 
     let content = `<div class="timer-msg">The combat has ended at ${hour}:${min} after ${combatTime} minutes </div>`;
 
-    const speaker = ChatMessage._getSpeakerFromUser({ user: game.user });
-
     let messageData = {
         user: game.user.id,
-        speaker: speaker,
         type: CONST.CHAT_MESSAGE_STYLES.OOC,
         content: content
         }
