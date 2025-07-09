@@ -23,7 +23,6 @@ Hooks.on("combatStart", (combat, updates) => {
 Hooks.on("updateCombatant", async function (combatant, data, options) {
     let token = combatant.token;
     if (game.combats.active && token.combatant.isDefeated && token.actor?.type !== 'character') {
-        Sequencer.EffectManager.endEffects({ object: token });
         token.update({ alpha: 0.3 });
     }
 
