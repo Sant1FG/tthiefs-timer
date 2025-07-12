@@ -20,29 +20,47 @@ Hooks.on("combatStart", (combat, updates) => {
         }
 });
 
-Hooks.on("updateCombatant", async function (combatant, data, options) {
-    let token = combatant.token;
-    if (game.combats.active && token.combatant.isDefeated && token.actor?.type !== 'character') {
-        token.update({ alpha: 0.3 });
-    }
+Hooks.on("updateCombatant", async function (combatant, updateData, options, userId) {
 
-    if (game.combats.active && token.combatant.isDefeated && token.combatant.defeated == false && token.actor?.type !== 'character') {
-        token.update({ alpha: 1.0 });
-    }
+  if (!game.user.isGM) return;
+    
+  // Only apply on active combat and owned tokens
+  const token = combatant.token;
+  if (!token || !token.actor || token.actor.type === "character") return;
 
+  // Only continue if this user has permission to update this token
+  if (!token.isOwner) return;
 
+   // Only proceed if defeated flag is changing
+  if (!("defeated" in updateData)) return;
+
+  const isNowDefeated = updateData.defeated === true;
+  const newAlpha = isNowDefeated ? 0.3 : 1.0;
+
+  try {
+    await token.update({ alpha: newAlpha });
+  } catch (err) {
+    console.warn(`Failed to update alpha on token ${token.name}:`, err);
+  }
 });
 
 Hooks.on("deleteCombat", async function (combat) {
-    if (!game.combats.active) {
-        canvas.tokens.placeables.forEach(token => {
-            let each = token.document;
-            if(each.alpha < 1 ){
-                each.update({ alpha: 1.0 });
-            }
-            
-        });
+  // Ensure this only runs once and only by GMs
+  if (!game.user.isGM) return;
+
+  // Iterate through all tokens on the canvas
+  for (const token of canvas.tokens.placeables) {
+    const doc = token.document;
+
+    // Only reset tokens that are NPCs and not at full opacity
+    if (doc.actor?.type !== "character" && doc.alpha < 1.0) {
+      try {
+        await doc.update({ alpha: 1.0 });
+      } catch (err) {
+        console.warn(`Failed to restore opacity for token ${doc.name}:`, err);
+      }
     }
+  }
 });
 
 
